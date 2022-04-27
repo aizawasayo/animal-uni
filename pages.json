@@ -1,0 +1,410 @@
+{
+  "pages": [{
+    "path": "pages/tabBar/guide/guide",
+    "style": {
+      "navigationBarTitleText": "动森之家",
+      "app-plus": {
+        "bounce": "vertical",
+        "titleNView": {
+          "type": "transparent",
+          "searchInput": {
+            "backgroundColor": "#fff",
+            "borderRadius": "6px",
+            "placeholder": "请输入攻略关键字 如：万圣节活动",
+            "disabled": true
+          }
+        }
+      }
+    }
+  }, {
+    "path": "pages/tabBar/museum/museum",
+    "style": {
+      "navigationBarTitleText": "博物馆",
+      "disableScroll": true,
+      // "navigationBarShadow": { "colorType": "grey" },
+      "app-plus": {
+        "titleNView": false
+        // "titleNView": {
+        //   "titleColor": "#fff",
+        //   "type": "transparent",
+        //   "buttons": [{
+        //     "background": "#04b96e",
+        //     "text": "标记模式",
+        //     "width": "auto",
+        //     "fontSize": "14px"
+        //   }],
+        //   "searchInput": {
+        //     "backgroundColor": "#fff",
+        //     "borderRadius": "6px",
+        //     "placeholder": "请输入图鉴关键字",
+        //     "autoFocus": true
+        //   }
+        // }
+      }
+    }
+  }, {
+    "path": "pages/tabBar/community/community",
+    "style": {
+      "navigationBarTitleText": "社区"
+    }
+  }, {
+    "path": "pages/tabBar/archive/archive",
+    "style": {
+      "navigationBarTitleText": "图鉴"
+    }
+  }, {
+    "path": "pages/tabBar/user/user",
+    "style": {
+      "navigationBarTitleText": "我的"
+    }
+  }],
+  "subPackages": [{
+      "root": "pages/guide",
+      "pages": [{
+        "path": "guide-search-list/guide-search-list",
+        "style": {
+          "navigationBarTitleText": "搜索攻略",
+          "app-plus": {
+            "titleNView": {
+              "buttons": [{
+                "text": "\ue537",
+                "width": "auto",
+                "fontSize": "28px"
+              }],
+              "searchInput": {
+                "backgroundColor": "#fff",
+                "borderRadius": "6px",
+                "placeholder": "请输入攻略关键字 如：万圣节活动",
+                "autoFocus": true
+              }
+            }
+          }
+        }
+      }, {
+        "path": "guide-detail/guide-detail",
+        "style": {
+          "navigationBarTitleText": "攻略详情"
+        }
+      }]
+    },
+    {
+      "root": "pages/museum",
+      "pages": [{
+        "path": "/museum-detail/museum-detail",
+        "style": {
+          "navigationBarTitleText": "详情页面"
+        }
+      }]
+    },
+    {
+      "root": "pages/community",
+      "pages": [{
+        "path": "/board/board-detail/board-detail",
+        "style": {
+          "navigationBarTitleText": "森友墙详情"
+        }
+      }, {
+        "path": "/turnip/turnip-detail/turnip-detail",
+        "style": {
+          "navigationBarTitleText": "信息详情"
+        }
+      }, {
+        "path": "/trade/trade-detail/trade-detail",
+        "style": {
+          "navigationBarTitleText": "信息详情"
+        }
+      }, {
+        "path": "/board/add-board/add-board",
+        "style": {
+          "navigationBarTitleText": "发布森友墙"
+        }
+      }, {
+        "path": "/turnip/add-turnip/add-turnip",
+        "style": {
+          "navigationBarTitleText": "发布菜市场信息"
+        }
+      }, {
+        "path": "/trade/add-trade/add-trade",
+        "style": {
+          "navigationBarTitleText": "发布交易区信息"
+        }
+      }]
+    },
+    {
+      "root": "pages/archive",
+      "pages": [{
+          "path": "/islander/islander",
+          "style": {
+            "navigationBarTitleText": "岛民",
+            "disableScroll": true,
+            "app-plus": {
+              "titleNView": {
+                "searchInput": {
+                  "backgroundColor": "#fff",
+                  "borderRadius": "6px",
+                  "placeholder": "请输入岛民名字进行模糊搜索",
+                  "autoFocus": true
+                }
+              }
+            }
+          }
+        }, {
+          "path": "/scrollListDemo",
+          "style": {
+            "navigationBarTitleText": "岛民详情"
+          }
+        },
+        {
+          "path": "/archive-detail/archive-detail",
+          "style": {
+            "navigationBarTitleText": "图鉴详情"
+          }
+        },
+        {
+          "path": "/furniture/furniture",
+          "style": {
+            "navigationBarTitleText": "家具",
+            "disableScroll": true,
+            "app-plus": {
+              "titleNView": {
+                "searchInput": {
+                  "backgroundColor": "#fff",
+                  "borderRadius": "6px",
+                  "placeholder": "请输入家具名称进行模糊搜索",
+                  "autoFocus": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "path": "/clothing/clothing",
+          "style": {
+            "navigationBarTitleText": "服饰",
+            "disableScroll": true,
+            "app-plus": {
+              "titleNView": {
+                "searchInput": {
+                  "backgroundColor": "#fff",
+                  "borderRadius": "6px",
+                  "placeholder": "请输入服饰名称进行模糊搜索",
+                  "autoFocus": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "path": "/plant/plant",
+          "style": {
+            "navigationBarTitleText": "植物",
+            "disableScroll": true,
+            "app-plus": {
+              "titleNView": {
+                "searchInput": {
+                  "backgroundColor": "#fff",
+                  "borderRadius": "6px",
+                  "placeholder": "请输入植物名称进行模糊搜索",
+                  "autoFocus": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "path": "/material/material",
+          "style": {
+            "navigationBarTitleText": "素材",
+            "disableScroll": true,
+            "app-plus": {
+              "titleNView": {
+                "searchInput": {
+                  "backgroundColor": "#fff",
+                  "borderRadius": "6px",
+                  "placeholder": "请输入素材名称进行模糊搜索",
+                  "autoFocus": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "path": "/tool/tool",
+          "style": {
+            "navigationBarTitleText": "工具",
+            "disableScroll": true,
+            "app-plus": {
+              "titleNView": {
+                "searchInput": {
+                  "backgroundColor": "#fff",
+                  "borderRadius": "6px",
+                  "placeholder": "请输入工具名称进行模糊搜索",
+                  "autoFocus": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "path": "/recipe/recipe",
+          "style": {
+            "navigationBarTitleText": "DIY配方",
+            "disableScroll": true,
+            "app-plus": {
+              "titleNView": {
+                "searchInput": {
+                  "backgroundColor": "#fff",
+                  "borderRadius": "6px",
+                  "placeholder": "请输入配方名称进行模糊搜索",
+                  "autoFocus": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "path": "/record/record",
+          "style": {
+            "navigationBarTitleText": "唱片",
+            "disableScroll": true,
+            "app-plus": {
+              "titleNView": {
+                "searchInput": {
+                  "backgroundColor": "#fff",
+                  "borderRadius": "6px",
+                  "placeholder": "请输入唱片名称进行模糊搜索",
+                  "autoFocus": true
+                }
+              }
+            }
+          }
+        },
+        {
+          "path": "/design/design",
+          "style": {
+            "navigationBarTitleText": "设计分享",
+            "disableScroll": true
+          }
+        },
+        {
+          "path": "/add-design/add-design",
+          "style": {
+            "navigationBarTitleText": "发布设计"
+          }
+        },
+        {
+          "path": "/design-detail/design-detail",
+          "style": {
+            "navigationBarTitleText": "设计详情"
+          }
+        },
+        {
+          "path": "/upload/upload",
+          "style": {
+            "navigationBarTitleText": "上传组件"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/user",
+      "pages": [{
+        "path": "/user-edit/user-edit",
+        "style": {
+          "navigationBarTitleText": "用户编辑"
+        }
+      }, {
+        "path": "login/login",
+        "style": {
+          "navigationBarTitleText": "用户登录"
+        }
+      }, {
+        "path": "settings/settings",
+        "style": {
+          "navigationBarTitleText": ""
+        }
+
+      }, {
+        "path": "password/password",
+        "style": {
+          "navigationBarTitleText": ""
+        }
+
+      }, {
+        "path": "user-post/user-post",
+        "style": {
+          "navigationBarTitleText": "已发布信息"
+        }
+      }, {
+        "path": "/user-design/user-design",
+        "style": {
+          "navigationBarTitleText": "我的设计"
+        }
+      }]
+    }
+  ],
+  "globalStyle": {
+    "pageOrientation": "portrait",
+    "navigationBarTitleText": "动森之家",
+    "navigationBarTextStyle": "white", // 导航栏标题颜色及状态栏前景颜色
+    "navigationBarBackgroundColor": "#3FB984", // 导航栏背景颜色
+    "backgroundColor": "#F8F8F8",
+    "backgroundColorTop": "#F4F5F6", // 顶部窗口的背景色（bounce回弹区域）仅 iOS
+    "backgroundColorBottom": "#F4F5F6", // 底部窗口的背景色（bounce回弹区域）仅 iOS
+    "mp-360": {
+      "navigationStyle": "custom"
+    },
+    "app-plus": {
+      "background": "#efeff4",
+      "titleNView": {
+        "backgroundColor": "#3FB984", // 导航栏背景颜色
+        "titleColor": "#FFFFFF" // 标题文字颜色
+      }
+    },
+    "h5": {
+      "maxWidth": 1190
+    }
+  },
+  "tabBar": {
+    "color": "#7A7E83",
+    "selectedColor": "#3FB984",
+    "backgroundColor": "#F8F8F8",
+    "list": [{
+        "pagePath": "pages/tabBar/guide/guide",
+        "iconPath": "static/guide2.png",
+        "selectedIconPath": "static/guideHL2.png",
+        "text": "攻略"
+      },
+      {
+        "pagePath": "pages/tabBar/museum/museum",
+        "iconPath": "static/museum.png",
+        "selectedIconPath": "static/museumHL.png",
+        "text": "博物馆"
+      },
+      {
+        "pagePath": "pages/tabBar/community/community",
+        "iconPath": "static/community.png",
+        "selectedIconPath": "static/communityHL.png",
+        "text": "社区"
+      }, {
+        "pagePath": "pages/tabBar/archive/archive",
+        "iconPath": "static/archive.png",
+        "selectedIconPath": "static/archiveHL.png",
+        "text": "图鉴"
+      }, {
+        "pagePath": "pages/tabBar/user/user",
+        "iconPath": "static/user.png",
+        "selectedIconPath": "static/userHL.png",
+        "text": "用户"
+      }
+    ]
+  },
+  "condition": { //模式配置，仅开发期间生效
+    "current": 0, //当前激活的模式(list 的索引项)
+    "list": [{
+      "name": "", //模式名称
+      "path": "", //启动页面，必选
+      "query": "" //启动参数，在页面的onLoad函数里面得到
+    }]
+  }
+}
