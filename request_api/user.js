@@ -1,11 +1,11 @@
 import request from '@/common/request'
 
 export function login(data) {
-  return request({ url: '/admin/login', method: 'post', data })
+  return request({ url: 'admin/login', method: 'post', data })
 }
 
 export function logout() {
-  return request({ url: '/admin/logout', method: 'post' })
+  return request({ url: 'admin/logout', method: 'post' })
 }
 
 export function getUsers(params) {

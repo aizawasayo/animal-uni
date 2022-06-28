@@ -8,7 +8,6 @@ import { useStore } from 'vuex'
 import useLogin from '@/composables/useLogin'
 import { getUser, editUser } from '@/request_api/user'
 
-
 export default function useTagMode(tabBars, listRefs) {
   const tagMode = ref(false)
   const store = useStore()
@@ -16,14 +15,16 @@ export default function useTagMode(tabBars, listRefs) {
   const userId = computed(() => store.getters.userId)
   const collection = ref([])
 
-  const isCollected = (id) => {
+  const { goLogin } = useLogin('标记功能需要先登录，是否前往登录页面')
+
+  const isCollected = id => {
     // let bl = false
     // if(!collection.value.length ) return bl
     const index = collection.value.findIndex(c => c.id === id)
     return index !== -1
   }
 
-  const isShowTag = (id) => {
+  const isShowTag = id => {
     return token.value && isCollected(id)
   }
 
@@ -37,11 +38,11 @@ export default function useTagMode(tabBars, listRefs) {
     if (!isCollected(id)) {
       // 如果未标记过就标记上
       tagObj = {
-        $push: { collected: { type, id } }
+        $push: { collected: { type, id } },
       }
     } else {
       tagObj = {
-        $pull: { collected: { id } }
+        $pull: { collected: { id } },
       }
     }
     try {
@@ -50,25 +51,31 @@ export default function useTagMode(tabBars, listRefs) {
       // store.commit('user/setCollection', res.data.collected)
       await getCollection()
     } catch (err) {
-      console.log(err)
+      if (err.code === 401) {
+        goLogin()
+      }
     }
   }
 
-  watch(userId, val => {
-    if (val) {
-      getCollection()
-    }
-  }, { immediate: true })
-
-  const { goLogin } = useLogin('标记功能需要先登录，是否前往登录页面')
+  watch(
+    userId,
+    val => {
+      if (val) {
+        getCollection()
+      }
+    },
+    { immediate: true }
+  )
 
   const changeTagMode = () => {
     tagMode.value = !tagMode.value
     nextTick(() => {
       uni.showToast({
-        title: !tagMode.value ? '退出【已获得】\r\n快速标记模式' : '进入【已获得】快速标记模式，\r\n再次点击标记按钮会退出标记模式\r\n并自动保存。',
+        title: !tagMode.value
+          ? '退出【已获得】\r\n快速标记模式'
+          : '进入【已获得】快速标记模式，\r\n再次点击标记按钮会退出标记模式\r\n并自动保存。',
         duration: 3000,
-        icon: "none"
+        icon: 'none',
       })
     })
   }
@@ -87,6 +94,6 @@ export default function useTagMode(tabBars, listRefs) {
     tagButtonTap,
     changeTagMode,
     isShowTag,
-    changeTag
+    changeTag,
   }
 }

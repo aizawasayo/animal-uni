@@ -16,6 +16,13 @@ export function addComment(type, data) {
   })
 }
 
+export function getComment(id, type) {
+  return request({
+    url: `comment/${type}/${id}`,
+    method: 'get',
+  })
+}
+
 export function deleteComment(id, type) {
   return request({
     url: `comment/${type}/${id}`,

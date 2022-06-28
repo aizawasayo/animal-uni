@@ -3,7 +3,6 @@
 const state = {
   options: null,
   systemInfo: null,
-  uploadUrl: import.meta.env.VITE_APP_BASE_API + '/admin/upload', // 批量上传地址
 }
 
 const mutations = {

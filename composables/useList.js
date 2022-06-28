@@ -1,5 +1,4 @@
-import { ref, toRefs, watch, nextTick } from 'vue'
-import { getSingleHeight } from '@/common/utils'
+import { ref, toRefs, watch } from 'vue'
 
 /*
   捋一下滚动列表逻辑：(这里以 ScrollView组件为例)
@@ -26,21 +25,19 @@ import { getSingleHeight } from '@/common/utils'
 */
 
 // 请求分页列表数据
-export default function useList(listQuery, getListApi, type, singleDomClass) {
+export default function useList({ listQuery, getListApi, type }) {
   const { page, pageSize } = toRefs(listQuery)
   const list = ref(null)
   const total = ref(0)
-  const allList = ref(null)
   const listLoading = ref(false)
   const status = ref('more') // more|loading|noMore	对应 上拉显示更多｜正在加载中｜没有更多了
   const error = ref(null)
   const isRefresh = ref(false) // 下拉刷新是否被触发
-  const singleHeight = ref(0)
 
   let params = [] // 用来处理评论 api 的特殊情况
-  type && type.value ?
-    (params = [type.value, listQuery]) :
-    (params = [listQuery])
+  type && type.value
+    ? (params = [type.value, listQuery])
+    : (params = [listQuery])
 
   const getList = async () => {
     if (listLoading.value) return
@@ -52,12 +49,6 @@ export default function useList(listQuery, getListApi, type, singleDomClass) {
 
       if (page.value === 1) {
         list.value = data.list
-        nextTick(() => {
-          if (pageSize.value === 0) {
-            allList.value = data.list
-            getSingleHeight(singleHeight, singleDomClass)
-          }
-        })
       } else {
         list.value = list.value.concat(data.list)
       }
@@ -75,7 +66,8 @@ export default function useList(listQuery, getListApi, type, singleDomClass) {
     if (listLoading.value) return
     const totalPage = Math.ceil(total.value / pageSize.value)
     // 如果下一页的页码值大于总页数直接return
-    if (page.value + 1 > totalPage || total.value <= pageSize.value) return status.value = 'noMore'
+    if (page.value + 1 > totalPage || total.value <= pageSize.value)
+      return (status.value = 'noMore')
 
     listQuery.page = listQuery.page + 1
   }
@@ -92,19 +84,30 @@ export default function useList(listQuery, getListApi, type, singleDomClass) {
     }
   }
 
+  const refreshItem = async (getItemApi, id, type) => {
+    const params = type ? [id, type] : [id]
+    const { data } = await getItemApi(...params)
+    const index = list.value.findIndex(l => l._id === id)
+    list.value[index] = data
+  }
+
   // onMounted(getList)
 
   // 筛选条件改变时，刷新数据
-  watch(() => listQuery.sort, val => {
-    refreshList()
-  })
+  watch(
+    () => listQuery.sort,
+    val => {
+      refreshList()
+    }
+  )
 
   // watch 能监听 getter，而且必须像这样使用箭头函数。或者直接监听一个 ref
   watch(
     listQuery,
     val => {
       getList()
-    }, { immediate: true, deep: true } // 初始化时就执行一次，代替 onMounted 钩子
+    },
+    { immediate: true, deep: true } // 初始化时就执行一次，代替 onMounted 钩子
   )
 
   // 也可像这样直接监听 ref 数组
@@ -117,7 +120,6 @@ export default function useList(listQuery, getListApi, type, singleDomClass) {
   // )
 
   return {
-    allList,
     list,
     total,
     listLoading,
@@ -125,7 +127,7 @@ export default function useList(listQuery, getListApi, type, singleDomClass) {
     error,
     isRefresh,
     refreshList,
+    refreshItem,
     loadMore,
-    singleHeight
   }
 }

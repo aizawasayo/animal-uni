@@ -1,112 +1,116 @@
 <template>
-  <view class="tabs">
-    <scroll-view class="tab-bar scroll-h" :scroll-x="true" :show-scrollbar="false" :scroll-into-view="scrollInto">
-      <view v-for="(tab,index) in tabBars" :key="tab.id" class="uni-tab-item" :id="tab.id" :data-current="index"
-        @click="ontabtap">
-        <text class="uni-tab-item-title" :class="tabIndex==index ? 'uni-tab-item-title-active' : ''">{{tab.name}}</text>
-      </view>
-    </scroll-view>
-    <view class="line-h"></view>
-    <swiper :current="tabIndex" class="swiper-box" :duration="300" @change="ontabchange">
-      <swiper-item v-for="(tab, i) in tabBars" :key="tab.id + i">
-        <scroll-list :ref="el => {if (el) postListRefs[i] = el} " :query="query" :type="tab.id" :listApi="listApi(tab.id)" fullDomClass='.uni-swiper-wrapper' singleDomClass=".uni-list-item">
-          <template #default="{ item, refreshList }">
-            <post-item :item="item" :refreshFun="refreshList" :type="tab.id"></post-item>
+  <z-paging-swiper>
+    <template #top>
+      <z-tabs
+        ref="tabs"
+        :list="tabBars"
+        :bar-width="100"
+        active-color="#3FB984"
+        :current="currentTab"
+        @change="tabsChange"
+      />
+      <view class="line-h"></view>
+    </template>
+
+    <swiper
+      class="swiper"
+      :current="currentTab"
+      @animationfinish="animationfinish"
+    >
+      <swiper-item
+        class="swiper-item"
+        v-for="(tab, i) in tabBars"
+        :key="tab.id + i"
+      >
+        <swiper-paging-list
+          :tabIndex="i"
+          :currentIndex="currentTab"
+          :ref="
+            el => {
+              if (el) postListRefs[i] = el
+            }
+          "
+          :pageSize="10"
+          :apiType="tab.id"
+          :listApi="getListApi(tab.id)"
+        >
+          <template #default="{ item }">
+            <post-item
+              :item="item"
+              @delete-post="deletePost"
+              :apiType="tab.id"
+            ></post-item>
           </template>
-        </scroll-list>
+        </swiper-paging-list>
       </swiper-item>
     </swiper>
-  </view>
+  </z-paging-swiper>
 </template>
 
 <script>
-  import { ref, computed, onMounted, onBeforeUpdate } from 'vue'
-  import PostItem from '@/components/PostItem.vue'
-  import ScrollList from '@/components/ScrollList.vue'
-  import { getBoardList } from '@/request_api/board'
-  import { getTurnipList } from '@/request_api/turnip'
-  import { getTradeList } from '@/request_api/trade'
-  import { getGuideList } from '@/request_api/guide'
+import { ref, onBeforeUpdate } from 'vue'
+import SwiperPagingList from '@/components/SwiperPagingList.vue'
+import PostItem from '@/components/PostItem.vue'
+import useSwiperTabs from '@/composables/useSwiperTabs'
+import { getBoardList } from '@/request_api/board'
+import { getTurnipList } from '@/request_api/turnip'
+import { getTradeList } from '@/request_api/trade'
+import { getGuideList } from '@/request_api/guide'
 
-  export default {
-    components: {
-      PostItem,
-      ScrollList
-    },
-    setup(props) {
-      const query = ref('')
-      const tabIndex = ref(0)
-      const scrollInto = ref('')
+export default {
+  components: {
+    SwiperPagingList,
+    PostItem,
+    // ScrollList,
+  },
+  setup(props) {
+    const query = ref('')
+    const tabBars = [
+      // { name: '攻略', id: 'guide' },
+      { name: '森友墙', id: 'board' },
+      { name: '菜市场', id: 'turnip' },
+      { name: '交易区', id: 'trade' },
+    ]
+    const postListRefs = ref([])
+    const { currentTab, tabsChange, animationfinish } = useSwiperTabs()
 
-      const tabBars = [
-        { name: '攻略', id: 'guide' },
-        { name: '森友墙', id: 'board' },
-        { name: '菜市场', id: 'turnip' },
-        { name: '交易区', id: 'trade' },
-      ]
-      const postListRefs = ref([])
-      
-      const listApi = (type) => {
+    // 删除信息后刷新我的发布对应tab的列表，再去更新对应展示页面的列表
+    const deletePost = () => {
+      postListRefs.value[currentTab.value].reloadList()
+      uni.$emit('refresh-community-list', currentTab.value)
+    }
+
+    onBeforeUpdate(() => {
+      postListRefs.value = []
+    })
+
+    return {
+      query,
+      tabBars,
+      currentTab,
+      tabsChange,
+      animationfinish,
+      postListRefs,
+      deletePost,
+      getListApi: type => {
         let listFun = null
         switch (type) {
           case 'guide':
             listFun = getGuideList
-            break;
+            break
           case 'board':
             listFun = getBoardList
-            break;
+            break
           case 'turnip':
             listFun = getTurnipList
-            break;
+            break
           case 'trade':
             listFun = getTradeList
-            break;
+            break
         }
         return listFun
-      }
-
-      const switchTab = (index) => {
-        if (tabIndex.value === index) return
-
-        tabIndex.value = index;
-        scrollInto.value = tabBars[index].id;
-      }
-
-      const ontabtap = (e) => {
-        let index = e.target.dataset.current || e.currentTarget.dataset.current;
-        switchTab(index);
-      }
-      
-      const ontabchange = (e) => {
-        let index = e.target.current || e.detail.current;
-        switchTab(index);
-      }
-
-      onMounted(() => {
-        postListRefs.value.forEach((list, i) => {
-          postListRefs.value[i].changeScrollHeight()
-        })
-      })
-      
-      onBeforeUpdate(() => {
-        postListRefs.value = []
-      })
-
-      return {
-        query,
-        tabIndex,
-        tabBars,
-        postListRefs,
-        scrollInto,
-        listApi,
-        switchTab,
-        ontabtap,
-        ontabchange
-      };
-    },
-  }
+      },
+    }
+  },
+}
 </script>
-
-<style lang="scss">
-
-</style>

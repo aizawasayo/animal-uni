@@ -1,11 +1,11 @@
 import { ref, onMounted } from 'vue'
 import { getFilterOptions } from '@/common/get-options'
 
-export default function useFilter(listQuery, type) {
+export default function useFilter(listQuery, type, reloadList) {
   const filterOpts = ref([])
 
-  // 改变列表组件自身的选项数组 及 查询参数【listQuery】中的筛选条件 
-  const filterChange = (param) => {
+  // 改变列表组件自身的选项数组 及 查询参数【listQuery】中的筛选条件
+  const filterChange = param => {
     const key = param.key
     const checkVal = param.checkVal
     const filterList = param.list
@@ -17,17 +17,19 @@ export default function useFilter(listQuery, type) {
     })
 
     Object.keys({
-      [key]: checkVal
+      [key]: checkVal,
     }).forEach(key => {
       listQuery[key] = checkVal
     })
-    listQuery.page = 1
+    reloadList && reloadList()
   }
 
-  // 重置筛选条件    
+  // 重置筛选条件
   const resetFilter = () => {
     filterOpts.value.map(opt => {
-      opt.list.map(item => { item.checked = false })
+      opt.list.map(item => {
+        item.checked = false
+      })
       return { ...opt }
     })
 
@@ -37,7 +39,7 @@ export default function useFilter(listQuery, type) {
         delete listQuery[key]
       }
     })
-    listQuery.page = 1
+    reloadList && reloadList()
   }
 
   onMounted(() => {
@@ -50,6 +52,6 @@ export default function useFilter(listQuery, type) {
   return {
     filterOpts,
     filterChange,
-    resetFilter
+    resetFilter,
   }
 }

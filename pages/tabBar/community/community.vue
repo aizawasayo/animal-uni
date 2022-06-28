@@ -1,117 +1,160 @@
 <template>
-  <view class="tabs">
-    <scroll-view class="tab-bar scroll-h" :scroll-x="true" :show-scrollbar="false" :scroll-into-view="scrollInto">
-      <view v-for="(tab,index) in tabBars" :key="tab.id" class="uni-tab-item" :id="tab.id" :data-current="index"
-        @click="ontabtap">
-        <text class="uni-tab-item-title" :class="tabIndex==index ? 'uni-tab-item-title-active' : ''">{{tab.name}}</text>
-      </view>
-    </scroll-view>
-    <view class="line-h"></view>
-    <swiper :current="tabIndex" class="swiper-box" style="flex: 1;" :duration="300" @change="ontabchange">
-      <swiper-item>
-        <board ref="board" :query="query"></board>
-      </swiper-item>
-      <swiper-item>
-        <turnip ref="turnip" :query="query"></turnip>
-      </swiper-item>
-      <swiper-item>
-        <trade ref="trade" :query="query"></trade>
+  <z-paging-swiper>
+    <template #top>
+      <z-tabs
+        ref="tabs"
+        :list="tabBars"
+        :bar-width="100"
+        active-color="#3FB984"
+        :current="currentTab"
+        @change="tabsChange"
+      />
+      <view class="line-h"></view>
+    </template>
+
+    <swiper
+      class="swiper"
+      :current="currentTab"
+      @animationfinish="animationfinish"
+      ref="communitySwiper"
+    >
+      <swiper-item
+        class="swiper-item"
+        v-for="(tab, i) in tabBars"
+        :key="tab.id + i"
+      >
+        <swiper-paging-list
+          :ref="
+            el => {
+              if (el) communityListRefs[i] = el
+            }
+          "
+          :tabIndex="i"
+          :currentIndex="currentTab"
+          :pageSize="tab.id === 'board' ? 2 : 5"
+          :apiType="tab.id"
+          :listApi="getListApi(tab.id)"
+          :hasTopic="tab.id === 'board'"
+        >
+          <template #default="{ item, refreshItem }">
+            <component
+              :is="tab.itemComponent"
+              :item="item"
+              :isDetail="false"
+              :refresh-item="refreshItem"
+              @go-detail="() => itemClick(item._id, tab.id)"
+            ></component>
+          </template>
+        </swiper-paging-list>
       </swiper-item>
     </swiper>
-  </view>
-  <uni-fab ref="fab" :pattern="{buttonColor: '#3FB984'}" horizontal="right" vertical="bottom" :popMenu="false" @fabClick="fabClick" />
+  </z-paging-swiper>
+  <uni-fab
+    ref="fab"
+    :pattern="{ buttonColor: '#3FB984' }"
+    horizontal="right"
+    vertical="bottom"
+    :popMenu="false"
+    @fabClick="fabClick"
+  />
 </template>
 
 <script>
-  import { ref, computed, onMounted } from 'vue'
-  import { mapGetters, useStore } from 'vuex'
-  import useLogin from '@/composables/useLogin'
-  import Board from '@/pages/community/board/Board.vue'
-  import Turnip from '@/pages/community/turnip/Turnip.vue'
-  import Trade from '@/pages/community/trade/Trade.vue'
-  import { goPage } from '@/common/utils'
+import { ref, computed, onMounted, onBeforeUnmount, onBeforeUpdate } from 'vue'
+import { useStore } from 'vuex'
+import SwiperPagingList from '@/components/SwiperPagingList.vue'
+import BoardCard from '@/pages/community/board/BoardCard.vue'
+import TurnipCard from '@/pages/community/turnip/TurnipCard.vue'
+import TradeCard from '@/pages/community/trade/TradeCard.vue'
+import useSwiperTabs from '@/composables/useSwiperTabs'
+import useLogin from '@/composables/useLogin'
+import { getBoardList } from '@/request_api/board'
+import { getTurnipList } from '@/request_api/turnip'
+import { getTradeList } from '@/request_api/trade'
+import { goPage } from '@/common/utils'
 
-  export default {
-    components: {
-      Board,
-      Turnip,
-      Trade
-    },
-    inject: ['utils'],
-    setup(props) {
-      const query = ref('')
-      const tabIndex = ref(0)
-      const scrollInto = ref('')
-      const tabBars = [
-        { name: '森友墙', id: 'board' },
-        { name: '菜市场', id: 'turnip' },
-        { name: '交易区', id: 'trade' },
-      ]
-      const store = useStore()
-      const userId = computed(() => store.getters.userId)
-      const board = ref(null)
-      const turnip = ref(null)
-      const trade = ref(null)
+export default {
+  components: {
+    SwiperPagingList,
+    BoardCard,
+    TurnipCard,
+    TradeCard,
+  },
+  setup() {
+    const communityListRefs = ref([])
+    const tabBars = [
+      { name: '森友墙', id: 'board', itemComponent: BoardCard },
+      { name: '菜市场', id: 'turnip', itemComponent: TurnipCard },
+      { name: '交易区', id: 'trade', itemComponent: TradeCard },
+    ]
 
-      const switchTab = (index) => {
-        if (tabIndex.value === index) {
-          return;
+    const store = useStore()
+    const userId = computed(() => store.getters.userId)
+
+    const { currentTab, tabsChange, animationfinish } = useSwiperTabs()
+
+    const fabClick = () => {
+      if (userId.value) {
+        const apiType = tabBars[currentTab.value].id
+        goPage(`/pages/community/${apiType}/add-${apiType}/add-${apiType}`)
+      } else {
+        useLogin().goLogin('发布信息需要先登录，确定前往登录页面')
+      }
+    }
+
+    const itemClick = (id, apiType) => {
+      //goPage(`/pages/community/${type}/${type}-detail/${type}-detail?id=${id}`)
+      goPage(
+        `/pages/community/community-detail/community-detail?id=${id}&apiType=${apiType}&tabIndex=${currentTab.value}`
+      )
+    }
+
+    const refreshCommunityList = index => {
+      communityListRefs.value[index].reloadList()
+    }
+
+    const refreshCommunityItem = ({ index, getItemApi, id }) => {
+      communityListRefs.value[index].refreshItem(getItemApi, id)
+    }
+
+    onMounted(() => {
+      uni.$on('refresh-community-list', refreshCommunityList)
+      uni.$on('refresh-community-item', refreshCommunityItem)
+    })
+
+    onBeforeUnmount(() => {
+      uni.$off('refresh-community-list')
+      uni.$off('refresh-community-item')
+    })
+
+    onBeforeUpdate(() => {
+      communityListRefs.value = []
+    })
+
+    return {
+      currentTab,
+      tabBars, // 因为内部的滑动机制限制，请将tabs组件和swiper组件的current用不同变量赋值
+      tabsChange,
+      animationfinish,
+      fabClick,
+      itemClick,
+      communityListRefs,
+      getListApi: type => {
+        let listApi = null
+        switch (type) {
+          case 'board':
+            listApi = getBoardList
+            break
+          case 'turnip':
+            listApi = getTurnipList
+            break
+          case 'trade':
+            listApi = getTradeList
+            break
         }
-        tabIndex.value = index;
-        scrollInto.value = tabBars[index].id;
-      }
-
-      const ontabtap = (e) => {
-        let index = e.target.dataset.current || e.currentTarget.dataset.current;
-        switchTab(index);
-      }
-
-      const ontabchange = (e) => {
-        let index = e.target.current || e.detail.current;
-        switchTab(index);
-      }
-
-      const fabClick = () => {
-        if (userId.value) {
-          const type = tabBars[tabIndex.value].id
-          goPage(`../../community/${type}/add-${type}/add-${type}`)
-        } else {
-          useLogin().goLogin('发布信息需要先登录，确定前往登录页面')
-        }
-      }
-      
-      onMounted(()=> {
-        board.value.$refs.scrollList.changeScrollHeight()
-        turnip.value.$refs.scrollList.changeScrollHeight()
-        trade.value.$refs.scrollList.changeScrollHeight()
-      })
-
-      return {
-        query,
-        tabIndex,
-        tabBars,
-        scrollInto,
-        ontabchange,
-        ontabtap,
-        switchTab,
-        fabClick,
-        board,
-        turnip,
-        trade
-      }
-    },
-  }
+        return listApi
+      },
+    }
+  },
+}
 </script>
-
-<style lang="scss">
-  @import '@/common/uni-nvue.css';
-
-  /* #ifndef APP-PLUS */
-  page {
-    width: 100%;
-    min-height: 100%;
-    display: flex;
-  }
-
-  /* #endif */
-</style>

@@ -14,10 +14,6 @@
   display: none !important;
 }
 
-.uni-page-head {
-  // background-color: $uni-color-primary !important;
-}
-
 .uni-page-head-transparent .uni-page-head-btn {
   padding: 0 30rpx;
   border-radius: 40rpx;
@@ -38,49 +34,6 @@ checkbox-group {
 
 form {
   width: 100%;
-}
-
-.full-height {
-  flex: 1;
-  flex-direction: column;
-  overflow: hidden;
-  /* #ifndef APP-PLUS */
-  height: 100vh;
-  /* #endif */
-}
-
-.wrapper {
-  height: 100%;
-  /* #ifndef APP-PLUS */
-  height: 100vh;
-  /* #endif */
-}
-
-.bg-white {
-  background-color: white;
-}
-
-.padd-container {
-  padding: 0 30rpx;
-}
-
-.radius-box {
-  margin-bottom: 30rpx;
-  background-color: white;
-  border-radius: 20rpx;
-  box-shadow: 0 0 10rpx rgba($color: #000000, $alpha: 0.2);
-}
-
-.color-green {
-  color: $uni-color-success;
-}
-
-.color-purple {
-  color: $uni-color-info;
-}
-
-.color-blue {
-  color: #0ab3d8;
 }
 
 .uni-flex {
@@ -192,48 +145,6 @@ form {
 }
 
 /* 背景色 */
-.uni-primary-bg, uni-button[type='primary'].uni-primary-bg{
-  background-color: $uni-primary;
-  color: #FFF;
-}
-
-uni-button[type='primary'].uni-primary-bg.button-hover {
-  background-color: $uni-primary-light;
-  color: #FFF;
-}
-
-uni-button[disabled][type='primary'].uni-primary-bg{
-  background-color: $uni-primary-disable;
-}
-
-.uni-success-bg, uni-button[type='default'].uni-success-bg{
-  background-color: $uni-success;
-  color: #FFF;
-}
-
-uni-button[type='default'].uni-success-bg.button-hover {
-  background-color: $uni-success-light;
-  color: #FFF;
-}
-
-uni-button[disabled][type='default'].uni-success-bg{
-  background-color: $uni-success-disable;
-}
-
-.uni-warning-bg, uni-button[type='warn'].uni-warning-bg{
-  background-color: $uni-warning;
-  color: #FFF;
-}
-
-uni-button[type='warn'].uni-warning-bg.button-hover {
-  background-color: $uni-warning-light;
-  color: #FFF;
-}
-
-uni-button[disabled][type='warn'].uni-warning-bg{
-  background-color: $uni-warning-disable;
-}
-
 .uni-bg-red {
   background: #F76260;
   color: #FFF;
@@ -245,7 +156,7 @@ uni-button[disabled][type='warn'].uni-warning-bg{
 }
 
 .uni-bg-blue {
-  background: $uni-color-primary;
+  background: #3FB984;
   color: #FFF;
 }
 
@@ -379,12 +290,12 @@ checkbox-group label {
 
 .uni-badge-primary {
   color: #fff;
-  background-color: $uni-color-primary
+  background-color: #3FB984
 }
 
 .uni-badge-blue.uni-badge-inverted,
 .uni-badge-primary.uni-badge-inverted {
-  color: $uni-color-primary;
+  color: #3FB984;
   background-color: transparent
 }
 
@@ -536,7 +447,7 @@ checkbox-group label {
 }
 
 .uni-card-link {
-  color: $uni-color-primary;
+  color: #3FB984;
 }
 
 /* 列表 */
@@ -1035,7 +946,7 @@ checkbox-group label {
 }
 
 .feedback-submit {
-  background: $uni-color-primary;
+  background: #3FB984;
   color: #FFFFFF;
   margin: 20rpx;
 }
@@ -1139,13 +1050,12 @@ checkbox-group label {
 }
 
 .uni-tab-bar .active {
-  color: $uni-color-primary;
+  color: #3FB984;
 }
 
 .uni-tab-bar .swiper-box {
   flex: 1;
   width: 100%;
-  height: calc(100% - 100rpx);
 }
 
 .uni-tab-bar-loading {
@@ -1412,7 +1322,7 @@ checkbox-group label {
 }
 
 .uni-icon.uni-active {
-  color: $uni-color-primary;
+  color: #3FB984;
 }
 
 .uni-icon-contact:before {
@@ -1801,11 +1711,12 @@ checkbox-group label {
 }
 
 .left-win-active text {
-  color: $uni-color-primary !important;
+  color: #3FB984 !important;
 }
 
 .uni-navbar__header-container {
   padding-left: 0 !important;
+	flex-direction: row !important;
 }
 .uni-searchbar__box {
   height: 60rpx !important;
@@ -1819,11 +1730,11 @@ checkbox-group label {
   
 .uni-calendar-item__weeks-box .uni-calendar-item--checked, 
 .uni-datetime-picker--btn {
-  background-color: $uni-color-primary !important;
+  background-color: #3FB984 !important;
 }
 
 .uni-calendar-item__weeks-box-text {
-  color: $uni-primary-light !important;
+  color:#8BC34A !important;
 }
 
 .uni-calendar-item--checked .uni-calendar-item--checked-text {
@@ -1832,279 +1743,4 @@ checkbox-group label {
 
 .uni-calendar-item--disable .uni-calendar-item__weeks-box-text-disable {
   color: #D1D1D1 !important;
-}
-
-uni-page-body{
-  
-  // 顶部选项卡
-  .tabs {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    overflow: hidden;
-    /* #ifndef APP-PLUS */
-    height: 100vh;
-    /* #endif */
-  }
-  .tab-bar {
-    background-color: white;
-  }
-  .scroll-h {
-    width: 750rpx;
-    /* #ifdef H5 */
-    width: 100%;
-    /* #endif */
-    height: 80rpx;
-    flex-direction: row;
-    /* #ifndef APP-PLUS */
-    white-space: nowrap;
-    /* #endif */
-    /* flex-wrap: nowrap; */
-    /* border-color: #cccccc;
-  	border-bottom-style: solid;
-  	border-bottom-width: 1px; */
-  }
-  .uni-tab-item {
-    /* #ifndef APP-PLUS */
-    display: inline-block;
-    /* #endif */
-    flex-wrap: nowrap;
-    padding-left: 34rpx;
-    padding-right: 34rpx;
-  }
-  .uni-tab-item-title {
-    color: #555;
-    font-size: 30rpx;
-    height: 80rpx;
-    line-height: 80rpx;
-    flex-wrap: nowrap;
-    /* #ifndef APP-PLUS */
-    white-space: nowrap;
-    /* #endif */
-  }  
-  .uni-tab-item-title-active {
-    color: #3FB984;
-  }
-    
-  .line-h {
-    height: 1rpx;
-    background-color: #cccccc;
-  }
-  
-  .swiper-box, uni-swiper {
-    flex: 1;
-  }  
-  
-  .swiper-item {
-    flex: 1;
-    flex-direction: row;
-  }
-  
-  .scroll-v {
-    // flex: 1;
-    /* #ifndef MP-ALIPAY */
-    flex-direction: column;
-    /* #endif */
-    width: 750rpx;
-    width: 100%;
-  }
-  
-  // 列表（上拉刷新，滚动加载）
-  .refresh {
-    width: 750rpx;
-    width: 100%;
-    height: 64px;
-    justify-content: center;
-  }
-  
-  .refresh-view {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .refresh-icon {
-    width: 30px;
-    height: 30px;
-    transition-duration: .5s;
-    transition-property: transform;
-    transform: rotate(0deg);
-    transform-origin: 15px 15px;
-  }
-  
-  .refresh-icon-active {
-    transform: rotate(180deg);
-  }
-  
-  .loading-icon {
-    width: 20px;
-    height: 20px;
-    margin-right: 5px;
-    color: #999999;
-  }
-  
-  .loading-text {
-    margin-left: 2px;
-    font-size: 16px;
-    color: #999999;
-  }
-  
-  .loading-more {
-    align-items: center;
-    justify-content: center;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    text-align: center;
-  }
-  
-  .loading-more-text {
-    font-size: 28rpx;
-    color: #999;
-  }
-
-} 
-
-// 表单
-.formContainer {
-  height: 100%;
-  padding: 0 30rpx;
-  background-color: white;
-  .uni-forms-item__content, .uni-input-placeholder, .uni-input-input {
-    display: flex;
-    justify-content: flex-end;
-    text-align: right;
-    align-items: center;
-  }
-  .uni-numbox {
-    justify-content: flex-end;
-    .uni-input-input {
-      text-align: center;
-    }
-  }
-}
-
-// 菜市场/交易区通用卡片
-.community-card {
-
-  .limit-time {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-around;
-  }
-  
-  .uni-countdown__number{
-    width: auto;
-    margin: 0;
-  }
-  .uni-countdown__splitor{
-    padding: 0 8rpx;
-  }
-  .content-box {
-    text {
-      color: #666;
-    }
-
-    .content-header {
-      flex-direction: row;
-      align-items: center;
-
-      :nth-child(2) {
-        margin: 0 10rpx;
-        color: #999;
-      }
-
-      text {
-        font-size: 30rpx;
-        color: black;
-      }
-      .uni-tag-text--small {
-        font-size: 24rpx;
-      }
-    }
-    
-    .content-box-text {
-      display: block;
-      margin: 20rpx 0;
-    }
-
-    .content-deal {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-
-      .lineup,
-      .contact {
-        flex: 1;
-
-        view {
-          flex-direction: row;
-          align-items: center;
-        }
-
-        .org-circle,
-        .green-circle {
-          width: 10rpx;
-          height: 10rpx;
-          border-radius: 5rpx;
-          margin-right: 10rpx;
-        }
-
-        .org-circle {
-          background-color: $uni-color-warning;
-        }
-
-        .green-circle {
-          background-color: $uni-color-success;
-        }
-      }
-
-      .uni-tag--success {
-        margin-left: 20rpx;
-        color: white;
-      }
-    }
-  }
-}
-
-// 滚动列表单行基本样式
-.item-info {
-  display: flex;
-  flex-direction: row;
-  flex: 1;
-  align-items: center;
-  padding: 10rpx 30rpx;
-
-  .info-left {
-    display: flex;
-    flex-direction: row;
-    flex: 1;
-    line-height: 50rpx;
-    align-items: center;
-  }
-
-  .info-img {
-    width: 80rpx;
-    height: 80rpx;
-    margin-right: 20rpx;
-  }
-
-  .info-name {
-    margin-right: 20rpx;
-    color: #989898;
-  }
-
-  .info-price {
-    width: auto;
-    padding-left: 20rpx;
-    padding-right: 20rpx;
-    height: 50rpx;
-    background-color: #FFF8E1;
-    border-radius: 25rpx;
-    text-align: center;
-    color: #FFA726;
-    line-height: 50rpx
-  }
-
 }

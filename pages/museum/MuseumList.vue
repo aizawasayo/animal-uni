@@ -1,207 +1,210 @@
+<!-- 在这个文件对每个tab对应的列表进行渲染 -->
 <template>
-  <view :id="type+'-list-container'">
-    <list-toolbar ref="toolbarRef" :type="type" :checkKey="checkKey" :checkVal="checkVal" :sortChange="sortChange">
-    </list-toolbar>
-    <scroll-view class="scroll-v uni-list" :style="'height:'+this.scrollHeight+'px'" enable-back-to-top scroll-y
-      refresher-enabled :refresher-triggered="isRefresh" @refresherrefresh="refreshList" :lower-threshold="10"
-      @scrolltolower="loadMore">
-      <block v-for="(item, i) in list" :key="item._id">
-        <museum-item :ref="el => {if (el) museumItemRefs[i] = el} " :item="item"
-          :position="(type !== 'fossil' && type !== 'artwork') ? position : ''"
-          :isShowTag="$attrs.isShowTag(item._id)" @click="itemClick(item._id, type, i)">
+  <view class="content">
+    <z-paging
+      ref="paging"
+      v-model="dataList"
+      @query="queryList"
+      :fixed="false"
+      :auto="false"
+      :default-page-size="15"
+      inside-more
+      :show-loading-more-when-reload="true"
+    >
+      <template #top>
+        <list-toolbar
+          ref="toolbarRef"
+          :apiType="apiType"
+          :checkKey="checkKey"
+          :checkVal="checkVal"
+          :sortChange="sortChange"
+          :isTabBar="true"
+        >
+        </list-toolbar>
+      </template>
+      <!-- 自定义下拉刷新view(如果use-custom-refresher为true且不设置下面的slot="refresher"，此时不用获取refresherStatus，会自动使用z-paging自带的下拉刷新view) -->
+      <template #refresher="{ refresherStatus }">
+        <uni-refresher :status="refresherStatus" />
+      </template>
+      <view class="item" v-for="(item, i) in dataList" :key="item.name + i">
+        <museum-item
+          :item="item"
+          :position="
+            apiType !== 'fossil' && apiType !== 'artwork' ? position : ''
+          "
+          :isShowTag="$attrs.isShowTag(item._id)"
+          @click="itemClick(item._id)"
+        >
         </museum-item>
-      </block>
-      <uni-load-more :status="status" :icon-size="16" :content-text="loadText" />
-    </scroll-view>
-
-    <view v-if="type !== 'fossil' && type !== 'artwork'" class="position-toggle"
-      :class="{posSouth :(position === 'south')}"
-      @click="$emit('update:position', (position === 'north') ? 'south' : 'north')">
+      </view>
+      <template #loadingMoreNoMore>
+        <uni-nomore></uni-nomore>
+      </template>
+    </z-paging>
+    <view
+      v-if="$attrs.showPosition"
+      class="position-toggle"
+      :class="{ posSouth: position === 'south' }"
+      @click="
+        $emit('update:position', position === 'north' ? 'south' : 'north')
+      "
+    >
       <uni-icons type="map-pin-ellipse" size="28" color="#fff"></uni-icons>
-      <text class="position-text">{{ position === 'north' ? '北' : '南' }}</text>
+      <text class="position-text">{{
+        position === 'north' ? '北' : '南'
+      }}</text>
     </view>
-    <!-- 筛选弹窗 -->
-    <filter-pop :listQuery="listQuery" :type="type"></filter-pop>
+    <filter-pop
+      :listQuery="listQuery"
+      :apiType="apiType"
+      :reloadList="reloadList"
+      :isTabBar="true"
+    />
   </view>
 </template>
 
 <script>
-  import { ref, reactive, toRefs, computed, watch, onBeforeUpdate } from 'vue'
-  // import { onPullDownRefresh, onReachBottom } from '@dcloudio/uni-app'
-  import MuseumItem from '@/pages/museum/MuseumItem.vue'
-  import ListToolbar from '@/components/ListToolbar.vue'
-  import FilterPop from '@/components/FilterPop.vue'
-  import useList from '@/composables/useList'
-  import useSort from '@/composables/useSort'
-  import useScroll from '@/composables/useScroll'
-  import { getFishes } from '@/request_api/fish'
-  import { getInsects } from '@/request_api/insect'
-  import { getHalobiosList } from '@/request_api/halobios'
-  import { getFossils } from '@/request_api/fossil'
-  import { getArtworkList } from '@/request_api/artwork'
-  import { getUser, editUser } from '@/request_api/user'
-  import { goPage } from '@/common/utils'
+import { ref, reactive, watch, toRefs } from 'vue'
+import ListToolbar from '@/components/ListToolbar.vue'
+import MuseumItem from '@/pages/museum/MuseumItem.vue'
+import FilterPop from '@/components/FilterPop.vue'
+import usePagingList from '@/composables/usePagingList'
+import useSort from '@/composables/useSort'
+import { goSwitchPage } from '@/common/utils'
 
-  export default {
-    name: 'MuseumList',
-    components: {
-      MuseumItem,
-      ListToolbar,
-      FilterPop
-    },
-    inject: ['apiUrl'],
-    emits: ['changeSort', 'update:position', 'changeTag'],
-    props: {
-      type: {
-        type: String,
-        required: true
-      },
-      query: {
-        type: String,
-        default: ''
-      },
-      sort: {
-        type: Object,
-      },
-      position: {
-        type: String,
-        required: true,
-        validator: function(value) {
-          // 值必须匹配下列字符串中的一个
-          return ['north', 'south'].indexOf(value) !== -1
-        }
-      },
-      isTagMode: {
-        type: Boolean,
-        default: false
+export default {
+  components: { ListToolbar, MuseumItem, FilterPop },
+  props: {
+    // 当前组件的index，也就是当前组件是swiper中的第几个
+    tabIndex: {
+      type: Number,
+      default: function () {
+        return 0
       },
     },
-    setup(props, { emit, attrs }) {
-      const { type, query, sort, isTagMode, position } = toRefs(props)
+    // 当前swiper切换到第几个index
+    currentIndex: {
+      type: Number,
+      default: function () {
+        return 0
+      },
+    },
+    apiType: {
+      type: String,
+    },
+    query: {
+      type: String,
+      default: '',
+    },
+    sort: {
+      type: Object,
+    },
+    position: {
+      type: String,
+      required: true,
+      validator: function (value) {
+        // 值必须匹配下列字符串中的一个
+        return ['north', 'south'].indexOf(value) !== -1
+      },
+    },
+    isTagMode: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  setup(props, { emit, attrs }) {
+    const { currentIndex, tabIndex, apiType, sort, query, isTagMode } =
+      toRefs(props)
 
-      const toolbarRef = ref(null)
-      const museumItemRefs = ref([])
-      const checkSort = ref(sort.value)
+    const toolbarRef = ref(null)
 
-      const { sortString, checkKey, checkVal, sortChange } = useSort(checkSort, (val) => {
+    const checkSort = ref(sort.value)
+
+    const { sortString, checkKey, checkVal, sortChange } = useSort(
+      checkSort,
+      val => {
         emit('changeSort', val)
-      })
-
-      // 如果父组件的 sort 被改变了，判断这个排序字段是否包含在当前图鉴的排序字段列表里
-      watch(sort, val => {
-        if (toolbarRef.value.sortKeyArr.includes(Object.keys(val)[0])) {
-          // 如果是同步改变本图鉴列表的排序值，否则不变
-          checkSort.value = val
-        }
-      })
-
-      const listQuery = reactive({
-        query,
-        page: 1,
-        pageSize: 0,
-        sort: sortString,
-      })
-
-      const getListApi = (t) => {
-        let api = null
-        switch (t) {
-          case 'fish':
-            api = getFishes
-            break;
-          case 'insect':
-            api = getInsects
-            break;
-          case 'halobios':
-            api = getHalobiosList
-            break;
-          case 'fossil':
-            api = getFossils
-            break;
-          case 'artwork':
-            api = getArtworkList
-            break;
-        }
-        return api
       }
-      // 列表请求返回数据及列表刷新方法
-      const listProps = useList(
-        listQuery,
-        getListApi(type.value),
-        null,
-        '.uni-list-cell'
-      )
+    )
 
-      const { scrollHeight, changeScrollHeight } = useScroll({
-        fullDomClass: '.uni-swiper-wrapper',
-        topDomClass: '.list-toolbar',
-        listQuery,
-        singleHeight: listProps.singleHeight,
-      })
-
-      const itemClick = (id, type, index) => {
-        if (isTagMode.value) {
-          // changeTag(type, id)
-          emit('changeTag', { type, id })
-        } else {
-          goPage(`/pages/museum/museum-detail/museum-detail?id=${id}&type=${type}&tabIndex=${attrs.listIndex}`)
-        }
+    // 如果父组件的 sort 被改变了，判断这个排序字段是否包含在当前图鉴的排序字段列表里
+    watch(sort, val => {
+      if (toolbarRef.value.sortKeyArr.includes(Object.keys(val)[0])) {
+        // 如果是同步改变本图鉴列表的排序值，否则不变
+        checkSort.value = val
       }
+    })
 
-      const getAllList = (callback) => {
-        const currentList = listProps.allList.value
-        callback(currentList)
+    // 构造一个由自己控制的查询参数对象，便于添加和删除筛选字段
+    const listQuery = reactive({
+      query,
+      sort: sortString,
+    })
+
+    const { paging, dataList, total, queryList, reloadList, page, limit } =
+      usePagingList(attrs.listApi, listQuery, currentIndex, tabIndex, true)
+
+    const itemClick = id => {
+      if (isTagMode.value) {
+        // changeTag(type, id)
+        emit('changeTag', { type: apiType.value, id })
+      } else {
+        goSwitchPage(
+          `/pages/museum/museum-detail/museum-detail?id=${id}&apiType=${apiType.value}&tabIndex=${tabIndex.value}`,
+          dataList.value,
+          attrs.listApi,
+          { ...listQuery, page: page, pageSize: limit },
+          total
+        )
       }
+    }
 
-      onBeforeUpdate(() => {
-        museumItemRefs.value = []
-      })
-
-      return {
-        listQuery,
-        ...listProps,
-        scrollHeight,
-        changeScrollHeight,
-        toolbarRef,
-        checkKey,
-        checkVal,
-        sortChange,
-        museumItemRefs,
-        itemClick,
-        getAllList
-      };
-    },
-  };
+    return {
+      paging,
+      dataList,
+      total,
+      listQuery,
+      queryList,
+      reloadList,
+      toolbarRef,
+      checkKey,
+      checkVal,
+      sortChange,
+      itemClick,
+    }
+  },
+}
 </script>
 
-<style lang="scss">
-  .position-toggle {
-    position: absolute;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 160rpx;
-    height: 80rpx;
-    border-width: 2rpx;
-    border-color: #fff;
-    box-shadow: 0 0 10rpx rgba($color: #000000, $alpha: 0.2);
+<style lang="scss" scoped>
+.position-toggle {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 160rpx;
+  height: 80rpx;
+  border-width: 2rpx;
+  border-color: #fff;
+  box-shadow: 0 0 10rpx rgba($color: #000000, $alpha: 0.2);
+  color: #fff;
+  background-color: #8bc34a;
+  bottom: 200rpx;
+  right: 40rpx;
+  border-radius: 60rpx;
+  z-index: 99;
+
+  .position-text {
     color: #fff;
-    background-color: #8BC34A;
-    bottom: 200rpx;
-    right: 40rpx;
-    border-radius: 60rpx;
-    z-index: 9;
-
-    .position-text {
-      color: #fff;
-      width: 60rpx;
-      text-align: center;
-      font-size: 40rpx;
-      text-shadow: 0 0 10rpx rgba($color: #000000, $alpha: 0.2);
-    }
+    width: 60rpx;
+    text-align: center;
+    font-size: 40rpx;
+    text-shadow: 0 0 10rpx rgba($color: #000000, $alpha: 0.2);
   }
+}
 
-  .posSouth {
-    background-color: #3FB984;
-  }
+.posSouth {
+  background-color: #3fb984;
+}
 </style>

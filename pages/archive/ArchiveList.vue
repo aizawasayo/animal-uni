@@ -1,114 +1,126 @@
 <template>
-  <view>
-    <scroll-view class="scroll-v uni-list" :style="{ height: scrollHeight+'px' }" enable-back-to-top scroll-y
-      refresher-enabled :refresher-triggered="isRefresh" @refresherrefresh="refreshList" :lower-threshold="10"
-      @scrolltolower="loadMore">
-      <block v-for="(item, i) in list" :key="item._id">
-        <archive-item :ref="el => {if (el) archiveItemRefs[i] = el} " :item="item"
-          @click="utils.goPage(`/pages/archive/archive-detail/archive-detail?id=${item._id}&apiType=${$attrs.apiType}&tabIndex=${$attrs.listIndex}`)">
-        </archive-item>
-      </block>
-      <uni-load-more :status="status" :icon-size="16" :content-text="loadText" />
-    </scroll-view>
+  <view class="content">
+    <z-paging
+      ref="paging"
+      v-model="dataList"
+      @query="queryList"
+      :fixed="false"
+      :auto="false"
+      :default-page-size="15"
+      inside-more
+      :show-loading-more-when-reload="true"
+    >
+      <template #refresher="{ refresherStatus }">
+        <uni-refresher :status="refresherStatus" />
+      </template>
+      <view class="item" v-for="(item, i) in dataList" :key="item.name + i">
+        <archive-item :item="item" @click="itemClick(item._id)"> </archive-item>
+      </view>
+      <template #loadingMoreNoMore>
+        <uni-nomore></uni-nomore>
+      </template>
+    </z-paging>
   </view>
 </template>
 
 <script>
-  import { ref, reactive, toRefs, computed, watch, onBeforeUpdate } from 'vue'
-  import ArchiveItem from '@/pages/archive/ArchiveItem.vue'
-  import useList from '@/composables/useList'
-  import useScroll from '@/composables/useScroll'
-  import { getClothingList } from '@/request_api/clothing'
-  import { getFurnitureList } from '@/request_api/furniture'
+import { reactive, toRefs, watch } from 'vue'
+import ArchiveItem from '@/pages/archive/ArchiveItem.vue'
+import usePagingList from '@/composables/usePagingList'
+import { goSwitchPage } from '@/common/utils'
 
-  export default {
-    name: 'ArchiveList',
-    components: {
-      ArchiveItem,
-    },
-    inject: ['apiUrl', 'utils'],
-    emits: ['changeSort'],
-    props: {
-      tabType: {
-        type: String,
-        required: true
-      },
-      filterParams: {
-        type: Object
-      },
-      listParams: {
-        type: Object
+export default {
+  name: 'ArchiveList',
+  components: {
+    ArchiveItem,
+  },
+  inject: ['apiUrl', 'utils'],
+  emits: ['changeSort'],
+  props: {
+    tabIndex: {
+      type: Number,
+      default: function () {
+        return 0
       },
     },
-    setup(props, { attrs, emit }) {
-      const { tabType, filterParams, listParams } = toRefs(props)
+    // 当前swiper切换到第几个index
+    currentIndex: {
+      type: Number,
+      default: function () {
+        return 0
+      },
+    },
+    tabType: {
+      type: String,
+      required: true,
+    },
+    filterParams: {
+      type: Object,
+    },
+    listParams: {
+      type: Object,
+    },
+  },
+  setup(props, { attrs, emit }) {
+    const { currentIndex, tabIndex, tabType, listParams, filterParams } =
+      toRefs(props)
 
-      const archiveItemRefs = ref([])
+    const listQuery = reactive({
+      type: [tabType.value],
+      ...toRefs(listParams.value),
+    })
 
-      const listQuery = reactive({
-        type: [tabType.value],
-        page: 1,
-        pageSize: 0,
-        ...toRefs(listParams.value)
-      })
+    const { paging, dataList, total, queryList, reloadList, page, limit } =
+      usePagingList(attrs.listApi, listQuery, currentIndex, tabIndex, true)
 
-      watch(filterParams, val => {
-        if (Object.keys(val).length > 1) {
+    watch(
+      filterParams,
+      val => {
+        if (Object.keys(val).length >= 1) {
           Object.keys(val).forEach(key => {
             listQuery[key] = val[key]
           })
-        } else if (Object.keys(val).length === 1) {
+        } else if (Object.keys(val).length === 0) {
           // 重置操作
-          const defaultKeys = ['query', 'page', 'pageSize', 'sort', 'sortJson']
+          const defaultKeys = [
+            'query',
+            'page',
+            'pageSize',
+            'sort',
+            'sortJson',
+            'type',
+          ]
           Object.keys(listQuery).forEach(key => {
             if (!defaultKeys.includes(key)) {
               delete listQuery[key]
             }
           })
         }
-      }, { deep: true })
+      },
+      { deep: true }
+    )
 
-      // 列表请求返回数据及列表刷新方法
-      const listProps = useList(
-        listQuery,
-        attrs.apiType !== 'clothing' ? getFurnitureList : getClothingList,
-        null,
-        '.uni-list-cell'
+    const itemClick = id => {
+      goSwitchPage(
+        `/pages/archive/archive-detail/archive-detail?id=${id}&apiType=${attrs.apiType}&tabIndex=${tabIndex.value}`,
+        dataList.value,
+        attrs.listApi,
+        { ...listQuery, page: page, pageSize: limit },
+        total
       )
+    }
 
-      const { scrollHeight, changeScrollHeight } = useScroll({
-        fullDomClass: '.uni-swiper-wrapper',
-        topDomClass: '.list-toolbar',
-        // topDomClass: null,
-        listQuery,
-        singleHeight: listProps.singleHeight,
-      })
-
-      const getAllList = (callback) => {
-        const currentList = listProps.allList.value
-        // let index = currentList.findIndex(item => item._id === cid)
-        // if ((index === 0 && switchType === 'prev')|| (index === currentList.length - 1 && switchType === 'next')) return uni.showToast({
-        //   title: '没有更多了',
-        //   icon: 'error'
-        // })
-        // const newId = switchType === 'prev' ? currentList[index - 1]._id : currentList[index + 1]._id
-        callback(currentList)
-      }
-
-      onBeforeUpdate(() => {
-        archiveItemRefs.value = []
-      })
-
-      return {
-        ...listProps,
-        scrollHeight,
-        changeScrollHeight,
-        archiveItemRefs,
-        getAllList
-      };
-    },
-  };
+    return {
+      paging,
+      dataList,
+      total,
+      listQuery,
+      queryList,
+      reloadList,
+      itemClick,
+    }
+  },
+}
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

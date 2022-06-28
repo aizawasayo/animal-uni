@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 
 export default function useSort(checkSort, sortFun) {
   const checkKey = computed(() => Object.keys(checkSort.value)[0])
@@ -6,13 +6,14 @@ export default function useSort(checkSort, sortFun) {
 
   const sortChange = sortKey => {
     let newSort = {
-      [sortKey]: 1
+      [sortKey]: 1,
     }
 
-    if (checkKey.value === sortKey) { // 如果是切换同一个key的正序倒序     
+    if (checkKey.value === sortKey) {
+      // 如果是切换同一个key的正序倒序
       const sVal = checkVal.value === 1 ? -1 : 1
       newSort = {
-        [sortKey]: sVal
+        [sortKey]: sVal,
       }
     }
     // 去改变父组件共用的 sort
