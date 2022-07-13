@@ -96,24 +96,26 @@ export default {
         })
       } catch (err) {
         isValid.value = false
-        const errMessage =
-          typeof err !== 'object'
-            ? '登录失败，请检查后重新输入，点击【确定】按钮将清除输入内容。'
-            : '登录失败，' + err.message
-
-        uni.showModal({
-          title: '提示',
-          content: errMessage,
-          confirmColor: '#3FB984',
-          success: function (res) {
-            if (res.confirm) {
-              clearReactiveObj(loginFormData, '')
-              isValid.value = true
-            } else if (res.cancel) {
-              // console.log('用户点击取消')
-            }
-          },
-        })
+        if (!Array.isArray(err)) {
+          // 非表单验证错误
+          const errMessage =
+            typeof err !== 'object'
+              ? '登录失败，请检查后重新输入，点击【确定】按钮将清除输入内容。'
+              : '登录失败，' + err.message
+          uni.showModal({
+            title: '提示',
+            content: errMessage,
+            confirmColor: '#3FB984',
+            success: function (res) {
+              if (res.confirm) {
+                clearReactiveObj(loginFormData, '')
+                isValid.value = true
+              } else if (res.cancel) {
+                // console.log('用户点击取消')
+              }
+            },
+          })
+        }
       }
     }
 

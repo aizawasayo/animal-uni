@@ -22,8 +22,6 @@
 </template>
 
 <script>
-import { toRefs } from 'vue'
-
 export default {
   name: 'SwitchImage',
   inject: ['utils'],

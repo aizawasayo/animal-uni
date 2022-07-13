@@ -3,7 +3,7 @@
     "appid" : "__UNI__CB91227",
     "description" : "专为动森爱好者建立的一款集查询、交流及游戏互动的应用",
     "versionName" : "1.0.6",
-    "versionCode" : 128,
+    "versionCode" : 130,
     "transformPx" : false,
     "app-plus" : {
         /* 5+App特有相关 */
@@ -15,7 +15,9 @@
             "autoclose" : true,
             "delay" : 0
         },
-        "modules" : {},
+        "modules" : {
+            "OAuth" : {}
+        },
         /* 模块配置 */
         "distribute" : {
             /* 应用发布信息 */
@@ -41,11 +43,15 @@
                 "abiFilters" : [ "armeabi-v7a", "arm64-v8a" ],
                 "schemes" : "hbuilder,"
             },
-            "ios" : {},
+            "ios" : {
+                "dSYMs" : false
+            },
             /* ios打包配置 */
             "sdkConfigs" : {
                 "ad" : {},
-                "oauth" : {}
+                "oauth" : {
+                    "univerify" : {}
+                }
             },
             "icons" : {
                 "android" : {

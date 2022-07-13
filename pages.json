@@ -325,6 +325,12 @@
           }
         },
         {
+          "path": "register/register",
+          "style": {
+            "navigationBarTitleText": "用户注册"
+          }
+        },
+        {
           "path": "settings/settings",
           "style": {
             "navigationBarTitleText": ""

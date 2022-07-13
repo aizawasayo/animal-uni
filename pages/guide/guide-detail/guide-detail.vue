@@ -36,14 +36,35 @@
       </view>
     </view>
     <rich-text :nodes="itemDetail.content" />
+    <comment-list
+      v-if="!itemDetail.comment_disabled"
+      ref="commentListRef"
+      apiType="guide"
+      :id="itemId"
+      @delete-comment="deleteCommentId"
+    ></comment-list>
+    <FixedInput
+      v-if="!itemDetail.comment_disabled"
+      apiType="guide"
+      :id="itemId"
+      @add-comment="addCommentId"
+    ></FixedInput>
+    <view style="height: 100rpx"></view>
   </view>
 </template>
 
 <script>
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { getGuide } from '@/request_api/guide'
+import useComment from '@/composables/useComment'
+import CommentList from '@/components/CommentList.vue'
+import FixedInput from '@/components/FixedInput.vue'
+import { getGuide, addGuide } from '@/request_api/guide'
 export default {
+  components: {
+    CommentList,
+    FixedInput,
+  },
   inject: ['apiUrl'],
   props: {
     id: {
@@ -51,8 +72,11 @@ export default {
     },
   },
   setup(props) {
+    const itemId = ref(props.id)
     const isLoading = ref(false)
     const itemDetail = ref(null)
+
+    const commentListRef = ref(null)
 
     const getDetail = async () => {
       isLoading.value = true
@@ -61,12 +85,24 @@ export default {
       isLoading.value = false
     }
 
+    const { addCommentId, deleteCommentId } = useComment(
+      itemId.value,
+      addGuide,
+      async () => {
+        await commentListRef.value.refreshList() // 刷新评论列表
+      }
+    )
+
     onLoad(getDetail)
 
     return {
       isLoading,
+      itemId,
       itemDetail,
       getDetail,
+      commentListRef,
+      addCommentId,
+      deleteCommentId,
     }
   },
 }

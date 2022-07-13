@@ -11,7 +11,7 @@
       <uni-list-item
         :show-extra-icon="true"
         showArrow
-        :extra-icon="{ type: 'locked', color: '#cddc39' }"
+        :extra-icon="{ type: 'locked', color: '#FF9100' }"
         title="修改密码"
         :to="`../password/password`"
       />
@@ -32,20 +32,28 @@
       <uni-list-item
         :show-extra-icon="true"
         showArrow
-        :extra-icon="{ type: 'help', color: '#8BC34A' }"
+        :extra-icon="{ type: 'help', color: '#3f51b5' }"
         title="关于我们"
       />
       <uni-list-item
         :show-extra-icon="true"
         showArrow
-        :extra-icon="{ type: 'checkbox', color: '#3f51b5' }"
+        :extra-icon="{ type: 'checkbox', color: '#FDD835' }"
         title="隐私政策"
       />
       <uni-list-item
         :show-extra-icon="true"
         showArrow
-        :extra-icon="{ type: 'email', color: '#FDD835' }"
+        :extra-icon="{ type: 'email', color: '#cddc39' }"
         title="意见反馈"
+      />
+      <uni-list-item
+        :show-extra-icon="true"
+        showArrow
+        :extra-icon="{ type: 'minus', color: '#F44336' }"
+        title="注销用户"
+        @click="logoff"
+        clickable
       />
     </uni-list>
     <button type="primary" class="uni-primary-bg editBtn" @click="logout">
@@ -77,16 +85,37 @@ export default {
       isLoading.value = false
     }
 
-    const logout = async () => {
-      await store.dispatch('user/logout')
-      uni.showToast({
-        title: `退出登录成功`,
-        success: res => {
-          uni.switchTab({
-            url: '/pages/tabBar/guide/guide',
-          })
+    const confirmModal = type => {
+      const isLogout = type === 'logout'
+      uni.showModal({
+        title: '提示',
+        content: isLogout ? '确定退出登录？' : '确定注销？',
+        confirmColor: '#3FB984',
+        success: function (res) {
+          if (res.confirm) {
+            store
+              .dispatch(isLogout ? 'user/logout' : 'user/logoff')
+              .then(res => {
+                uni.showToast({
+                  title: isLogout ? `退出登录成功` : `注销成功`,
+                  success: res1 => {
+                    uni.switchTab({
+                      url: '/pages/tabBar/guide/guide',
+                    })
+                  },
+                })
+              })
+          }
         },
       })
+    }
+
+    const logout = () => {
+      confirmModal('logout')
+    }
+
+    const logoff = () => {
+      confirmModal('logoff')
     }
 
     const getStorageSize = () => {
@@ -140,6 +169,7 @@ export default {
       isLoading,
       userInfo,
       logout,
+      logoff,
       getStorageSize,
       clearStorage,
     }

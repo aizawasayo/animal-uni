@@ -1,4 +1,4 @@
-import { getUser, login, logout } from '@/request_api/user'
+import { getUser, deleteUser, login, logout } from '@/request_api/user'
 
 import {
   getToken,
@@ -54,7 +54,7 @@ const actions = {
         })
     })
   },
-  logout({ commit, state, dispatch }) {
+  logout({ commit, state }) {
     return new Promise((resolve, reject) => {
       logout(state.token)
         .then(() => {
@@ -62,10 +62,23 @@ const actions = {
           commit('setId', '')
           removeToken() // must remove token first
           removeUserId()
-      
+
           commit('resetState')
 
           resolve()
+        })
+        .catch(error => {
+          reject(error)
+        })
+    })
+  },
+  logoff({ commit, state, dispatch }) {
+    return new Promise((resolve, reject) => {
+      deleteUser(state.userId)
+        .then(() => {
+          dispatch('logout').then(() => {
+            resolve()
+          })
         })
         .catch(error => {
           reject(error)

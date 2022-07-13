@@ -5,6 +5,7 @@
       v-model="dataList"
       @query="queryList"
       :default-page-size="pageSize"
+      :auto="false"
       inside-more
       :show-loading-more-when-reload="true"
     >

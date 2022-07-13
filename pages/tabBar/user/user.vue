@@ -73,11 +73,11 @@
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import UserTopEdit from '@/pages/user/UserTopEdit.vue'
 import UserTopArticle from '@/pages/user/UserTopArticle.vue'
-import { setReactiveObj } from '@/common/utils'
+import { setReactiveObj, goPage } from '@/common/utils'
 import { getUser } from '@/request_api/user'
 import useLogin from '@/composables/useLogin'
 
@@ -92,7 +92,6 @@ export default {
     const topic = ref('')
     const store = useStore()
     const userInfo = reactive({})
-    const draftGuideNum = ref(0)
 
     const isLoading = ref(false)
 
@@ -108,8 +107,20 @@ export default {
       try {
         const { data } = await getUser(userId.value)
         setReactiveObj(userInfo, data)
+        if (!data.nickname) {
+          uni.showModal({
+            title: '提示',
+            content: '立即完善信息？',
+            confirmColor: '#3FB984',
+            success: function (res) {
+              if (res.confirm) {
+                goPage('/pages/user/user-edit/user-edit')
+              }
+            },
+          })
+        }
       } catch (err) {
-        console.log('未登录', err)
+        // console.log('未登录', err)
         goLogin()
       } finally {
         isLoading.value = false
